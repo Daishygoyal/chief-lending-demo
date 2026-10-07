@@ -1,0 +1,33 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Chief Lending - Demo",
+    "author": "Daishy"
+  },
+  "landingPage": "/",
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+      "step": "unzip",
+      "zipFile": {
+        "resource": "url",
+        "url": "https://raw.githubusercontent.com/Daishygoyal/chief-lending-demo/main/chief-lending-demo.zip"
+      },
+      "extractToPath": "/tmp/demo"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\n$src = '/tmp/demo/wp-content';\n$db  = glob('/wordpress/wp-content/database/.ht.*/.ht.sqlite');\nif (!$db) { throw new Exception('Playground database not found'); }\ncopy($src . '/database/.ht.sqlite', $db[0]);\nforeach (array('-wal', '-shm', '-journal') as $x) { @unlink($db[0] . $x); }\nfunction cl_copy_dir($from, $to) {\n    @mkdir($to, 0777, true);\n    foreach (scandir($from) as $f) {\n        if ($f === '.' || $f === '..') { continue; }\n        is_dir(\"$from/$f\") ? cl_copy_dir(\"$from/$f\", \"$to/$f\") : copy(\"$from/$f\", \"$to/$f\");\n    }\n}\ncl_copy_dir($src . '/themes/chief-lending', '/wordpress/wp-content/themes/chief-lending');\ncl_copy_dir($src . '/mu-plugins', '/wordpress/wp-content/mu-plugins');\nif (is_dir($src . '/uploads')) { cl_copy_dir($src . '/uploads', '/wordpress/wp-content/uploads'); }\necho 'installed';\n"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire '/wordpress/wp-load.php';\nglobal $wpdb;\n$old = 'http://127.0.0.1:9400';\n$new = untrailingslashit(home_url());\n$cols = array(array($wpdb->posts, 'post_content'), array($wpdb->posts, 'post_excerpt'), array($wpdb->posts, 'guid'), array($wpdb->postmeta, 'meta_value'));\nforeach ($cols as $c) {\n    $wpdb->query($wpdb->prepare(\"UPDATE {$c[0]} SET {$c[1]} = REPLACE({$c[1]}, %s, %s)\", $old, $new));\n}\nupdate_option('home', $new);\nupdate_option('siteurl', $new);\nflush_rewrite_rules();\necho 'urls updated';\n"
+    }
+  ]
+}
