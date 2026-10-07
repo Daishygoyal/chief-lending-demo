@@ -1,6 +1,6 @@
 # Chief Lending — Website Demo
 
-**Open the demo:** https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Daishygoyal/chief-lending-demo/main/blueprint.json
+**Open the demo:** https://playground.wordpress.net/?mode=seamless&login=no&blueprint-url=https://raw.githubusercontent.com/Daishygoyal/chief-lending-demo/main/blueprint.json
 
 The site runs entirely in your browser using [WordPress Playground](https://wordpress.github.io/wordpress-playground/). The first load takes 10–20 seconds.
 
